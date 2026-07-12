@@ -1,6 +1,5 @@
 package com.taskbridge.project.service;
 
-import com.taskbridge.exception.BusinessException;
 import com.taskbridge.exception.ResourceNotFoundException;
 import com.taskbridge.project.dto.CreateProjectRequest;
 import com.taskbridge.project.dto.ProjectResponse;
@@ -9,7 +8,7 @@ import com.taskbridge.project.entity.Project;
 import com.taskbridge.project.mapper.ProjectMapper;
 import com.taskbridge.project.repository.ProjectRepository;
 import com.taskbridge.project.validator.ProjectValidator;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +28,15 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
         return projectMapper.toResponse(savedProject);
     }
-
+    
+    @Transactional(readOnly = true)
     public ProjectResponse getProjectById(Long projectId) {
         projectValidator.validateProjectId(projectId);
         Project project = findProjectById(projectId);
         return projectMapper.toResponse(project);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectResponse> getAllProjects() {
         return projectRepository.findAll().stream()
                 .map(projectMapper::toResponse)

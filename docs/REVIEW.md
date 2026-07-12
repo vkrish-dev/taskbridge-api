@@ -158,6 +158,327 @@ Status:
 PASS
 
 ---
+# DTO Layer Review
+
+## Overall Rating
+
+9.4 / 10
+
+### Strengths
+
+- Java Records used for immutable DTOs.
+- Bean Validation annotations applied appropriately.
+- Clear separation between request and response DTOs.
+- No persistence annotations in DTOs.
+- No exposure of internal entity implementation.
+
+### Findings
+
+#### DTO-001
+
+Description is optional and correctly constrained.
+
+Severity
+
+None
+
+#### DTO-002
+
+Domain enum reused in DTO.
+
+Severity
+
+Recommendation
+
+Acceptable for this implementation.
+
+#### DTO-003
+
+Jackson default LocalDateTime serialization is acceptable.
+
+Severity
+
+Recommendation
+
+Consider standardized ISO-8601 formatting if future API requirements demand it.
+
+### Conclusion
+
+The DTO layer demonstrates modern Java design using records and Bean Validation. It aligns well with the layered architecture and provides a clean API contract with only minor optional enhancements.
+
+# Mapper Layer Review
+
+## Overall Rating
+
+9.2 / 10
+
+### Strengths
+
+- Dedicated mapper component.
+- Clear separation between Entity and DTO.
+- Prevents exposure of persistence objects.
+- Prevents client control of server-managed fields.
+- Simple and highly maintainable implementation.
+
+### Findings
+
+#### M-001
+
+Mapper methods assume non-null arguments.
+
+Severity
+
+Minor
+
+Recommendation
+
+Validate input in the service layer before invoking mapper methods.
+
+#### M-002
+
+Manual mapping implementation.
+
+Severity
+
+None
+
+Recommendation
+
+Acceptable for the project scope. MapStruct may be considered only if mapping complexity grows.
+
+### Conclusion
+
+The mapper layer is well-structured, easy to understand, and follows the project's layered architecture. No significant remediation is required.
+
+# Repository Layer Review
+
+## Overall Rating
+
+9.8 / 10
+
+### Strengths
+
+- Correct use of Spring Data JPA.
+- No unnecessary custom queries.
+- Clean repository abstraction.
+- No business logic present.
+- Fully aligned with layered architecture.
+
+### Findings
+
+#### R-001
+
+No custom repository methods.
+
+Severity
+
+None
+
+Recommendation
+
+The inherited JpaRepository functionality fully satisfies the current functional requirements. Additional queries should only be introduced when required by future business needs.
+
+### Conclusion
+
+The repository layer is concise, maintainable, and follows Spring Data JPA best practices. No remediation is required at this stage.
+
+# Service Layer Review
+
+## Overall Rating
+
+8.2 / 10
+
+### Strengths
+
+- Clear orchestration of business logic.
+- Correct separation between service, repository, mapper, and validator.
+- Constructor injection using Lombok.
+- Reusable helper method for entity retrieval.
+- Appropriate use of Optional.orElseThrow().
+
+### Findings
+
+#### S-001
+
+Wrong transaction annotation imported.
+
+Severity
+
+Major
+
+Recommendation
+
+Use Spring's `org.springframework.transaction.annotation.Transactional`.
+
+---
+
+#### S-002
+
+Read operations are not marked as read-only transactions.
+
+Severity
+
+Major
+
+Recommendation
+
+Annotate query methods with `@Transactional(readOnly = true)`.
+
+---
+
+#### S-003
+
+No logging strategy.
+
+Severity
+
+Major
+
+Recommendation
+
+Introduce SLF4J logging for significant business events and exceptions.
+
+---
+
+#### S-004
+
+Unused import.
+
+Severity
+
+Minor
+
+Recommendation
+
+Remove unused imports to improve code cleanliness.
+
+---
+
+#### S-005
+
+Explicit save() after updating a managed entity.
+
+Severity
+
+Recommendation
+
+JPA dirty checking may eliminate the need for an explicit save().
+
+### Conclusion
+
+The service layer is well structured and demonstrates good orchestration. The primary improvements relate to transaction management, logging, and enterprise conventions rather than functional correctness.
+
+# Controller Layer Review
+
+## Overall Rating
+
+9.2 / 10
+
+### Strengths
+
+- Correct REST endpoint design.
+- Thin controller with no business logic.
+- Proper use of ResponseEntity.
+- Bean Validation integrated using @Valid.
+
+### Findings
+
+#### C-001
+
+API versioning not implemented.
+
+Severity
+
+Minor
+
+Recommendation
+
+Expose endpoints under `/api/v1`.
+
+---
+
+#### C-002
+
+Location header not returned after resource creation.
+
+Severity
+
+Recommendation
+
+Return a Location header pointing to the created resource.
+
+---
+
+#### C-003
+
+No OpenAPI documentation.
+
+Severity
+
+Recommendation
+
+Consider Swagger/OpenAPI annotations for API discoverability.
+
+---
+
+#### C-004
+
+No standard API response envelope.
+
+Severity
+
+Major
+
+Recommendation
+
+Introduce a reusable `ApiResponse<T>` model for successful responses.
+
+---
+
+# Exception Handling Review
+
+## Overall Rating
+
+9.0 / 10
+
+### Strengths
+
+- Centralized exception handling.
+- Appropriate HTTP status codes.
+- Validation errors aggregated cleanly.
+- Generic fallback handler provided.
+
+### Findings
+
+#### EH-001
+
+Exceptions are not logged.
+
+Severity
+
+Major
+
+Recommendation
+
+Introduce structured logging before returning responses.
+
+---
+
+#### EH-002
+
+Error response uses `Map<String,Object>`.
+
+Severity
+
+Major
+
+Recommendation
+
+Replace with a strongly typed `ApiError` DTO.
+
+### Conclusion
+
+The controller and exception handling layers are well designed. The remaining improvements relate primarily to API consistency, observability, and enterprise-grade response modeling.
 
 # 4 Architecture Findings
 
