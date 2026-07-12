@@ -47,7 +47,7 @@ class ProjectControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status", is("CREATED")))
+                .andExpect(jsonPath("$.status", is(201)))
                 .andExpect(jsonPath("$.message", is("Project created successfully")))
                 .andExpect(jsonPath("$.data.name", is("TaskBridge Platform")))
                 .andExpect(jsonPath("$.data.milestoneStatus", is("INITIATED")));
@@ -68,7 +68,7 @@ class ProjectControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("OK")))
+                .andExpect(jsonPath("$.status", is(200)))
                 .andExpect(jsonPath("$.data.milestoneStatus", is("IN_PROGRESS")));
 
         mockMvc.perform(delete("/api/projects/1"))

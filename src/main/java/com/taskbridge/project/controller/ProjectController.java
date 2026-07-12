@@ -1,7 +1,7 @@
 package com.taskbridge.project.controller;
 
-import com.taskbridge.common.dto.ApiResponse;
-import com.taskbridge.common.dto.ApiResponseFactory;
+import com.taskbridge.common.api.ApiResponse;
+import com.taskbridge.common.api.ApiResponseBuilder;
 import com.taskbridge.project.dto.CreateProjectRequest;
 import com.taskbridge.project.dto.ProjectResponse;
 import com.taskbridge.project.dto.UpdateProjectMilestoneStatusRequest;
@@ -32,19 +32,19 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<ProjectResponse>> createProject(@Valid @RequestBody CreateProjectRequest request) {
         ProjectResponse response = projectService.createProject(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseFactory.success(HttpStatus.CREATED, "Project created successfully", response));
+                .body(ApiResponseBuilder.success(HttpStatus.CREATED, "Project created successfully", response));
     }
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ApiResponse<ProjectResponse>> getProjectById(@PathVariable Long projectId) {
         ProjectResponse response = projectService.getProjectById(projectId);
-        return ResponseEntity.ok(ApiResponseFactory.success(HttpStatus.OK, "Project retrieved successfully", response));
+        return ResponseEntity.ok(ApiResponseBuilder.success(HttpStatus.OK, "Project retrieved successfully", response));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProjectResponse>>> getAllProjects() {
         List<ProjectResponse> response = projectService.getAllProjects();
-        return ResponseEntity.ok(ApiResponseFactory.success(HttpStatus.OK, "Projects retrieved successfully", response));
+        return ResponseEntity.ok(ApiResponseBuilder.success(HttpStatus.OK, "Projects retrieved successfully", response));
     }
 
     @PatchMapping("/{projectId}/milestone-status")
@@ -52,13 +52,12 @@ public class ProjectController {
             @PathVariable Long projectId,
             @Valid @RequestBody UpdateProjectMilestoneStatusRequest request) {
         ProjectResponse response = projectService.updateProjectMilestoneStatus(projectId, request);
-        return ResponseEntity.ok(ApiResponseFactory.success(HttpStatus.OK, "Project milestone status updated successfully", response));
+        return ResponseEntity.ok(ApiResponseBuilder.success(HttpStatus.OK, "Project milestone status updated successfully", response));
     }
 
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable Long projectId) {
+    public ResponseEntity<Void> deleteProject(@PathVariable Long projectId) {
         projectService.deleteProject(projectId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseFactory.success(HttpStatus.NO_CONTENT, "Project deleted successfully"));
+        return ResponseEntity.noContent().build();
     }
 }
